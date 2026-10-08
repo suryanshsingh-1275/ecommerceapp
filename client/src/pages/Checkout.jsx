@@ -53,4 +53,41 @@ export default function Checkout() {
   };
 
   return (
-    
+    <div className="layout" style={{ gridTemplateColumns: '1fr 320px' }}>
+      <div className="card">
+        <h3>Shipping address</h3>
+        {user.addresses.map((a) => (
+          <label key={a._id} style={{ color: '#111' }}>
+            <input type="radio" style={{ width: 'auto' }} checked={sel === a._id} onChange={() => setSel(a._id)} />{' '}
+            {a.name}, {a.line1}, {a.city}, {a.state} - {a.pincode} ({a.phone})
+          </label>
+        ))}
+        <label style={{ color: '#111' }}>
+          <input type="radio" style={{ width: 'auto' }} checked={sel === 'new'} onChange={() => setSel('new')} /> Add new address
+        </label>
+        {sel === 'new' && Object.keys(blank).map((k) => (
+          <div key={k}>
+            <label>{k}</label>
+            <input value={form[k]} onChange={(e) => setForm({ ...form, [k]: e.target.value })} />
+          </div>
+        ))}
+        <h3>Payment</h3>
+        <label style={{ color: '#111' }}><input type="radio" style={{ width: 'auto' }} checked={method === 'COD'} onChange={() => setMethod('COD')} /> Cash on delivery</label>
+        <label style={{ color: '#111' }}><input type="radio" style={{ width: 'auto' }} checked={method === 'ONLINE'} onChange={() => setMethod('ONLINE')} /> Pay online (Razorpay)</label>
+      </div>
+      <div className="card" style={{ alignSelf: 'start' }}>
+        <h3>Summary</h3>
+        <div className="row between"><span>Items</span><span>{inr(subtotal)}</span></div>
+        <div className="row between"><span>Discount</span><span>-{inr(discount)}</span></div>
+        <div className="row between"><span>Shipping</span><span>{shipping ? inr(shipping) : 'Free'}</span></div>
+        <hr />
+        <div className="row between"><b>Total</b><b>{inr(total)}</b></div>
+        <div className="row" style={{ margin: '12px 0' }}>
+          <input placeholder="Coupon code" value={code} onChange={(e) => setCode(e.target.value)} style={{ flex: 1 }} />
+          <button className="secondary" onClick={applyCode}>Apply</button>
+        </div>
+        <button style={{ width: '100%' }} disabled={busy} onClick={place}>{busy ? 'Placing...' : 'Place order'}</button>
+      </div>
+    </div>
+  );
+}
