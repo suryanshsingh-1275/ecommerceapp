@@ -14,4 +14,12 @@ export default function Login() {
     catch (er) { toast.error(errMsg(er)); }
   };
   return (
-    
+    <form className="card auth" onSubmit={submit}>
+      <h2>Login</h2>
+      <label>Email</label><input type="email" required value={f.email} onChange={(e) => setF({ ...f, email: e.target.value })} />
+      <label>Password</label><input type="password" required value={f.password} onChange={(e) => setF({ ...f, password: e.target.value })} />
+      <p><button style={{ width: '100%' }}>Login</button></p>
+      <p><Link to="/forgot-password">Forgot password?</Link> · <Link to="/register">Create account</Link></p>
+    </form>
+  );
+}
