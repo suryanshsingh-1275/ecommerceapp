@@ -81,3 +81,22 @@ export const removeImage = asyncHandler(async (req, res) => {
   res.json(p);
 });
 
+export const getReviews = asyncHandler(async (req, res) =>
+  res.json(await Review.find({ product: req.params.id }).populate('user', 'name').sort('-createdAt')));
+
+export const addReview = asyncHandler(async (req, res) => {
+  const { rating, comment } = req.body;
+  if (!(rating >= 1 && rating <= 5)) throw httpError(400, 'Rating must be 1-5');
+  if (!(await Product.exists({ _id: req.params.id }))) throw httpError(404, 'Product not found');
+  await Review.findOneAndUpdate(
+    { user: req.user._id, product: req.params.id },
+    { rating, comment },
+    { upsert: true, new: true, runValidators: true, setDefaultsOnInsert: true }
+  );
+  const [agg] = await Review.aggregate([
+    { $match: { product: new mongoose.Types.ObjectId(req.params.id) } },
+    { $group: { _id: null, avg: { $avg: '$rating' }, n: { $sum: 1 } } },
+  ]);
+  await Product.findByIdAndUpdate(req.params.id, { ratings: Math.round(agg.avg * 10) / 10, numReviews: agg.n });
+  res.status(201).json({ message: 'Review saved' });
+});
