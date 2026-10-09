@@ -19,3 +19,15 @@ export const changePassword = asyncHandler(async (req, res) => {
   res.json({ message: 'Password changed' });
 });
 
+export const addAddress = asyncHandler(async (req, res) => {
+  if (req.body.isDefault) req.user.addresses.forEach((a) => (a.isDefault = false));
+  req.user.addresses.push(req.body);
+  await req.user.save();
+  res.status(201).json(req.user.addresses);
+});
+
+export const deleteAddress = asyncHandler(async (req, res) => {
+  req.user.addresses.pull(req.params.id);
+  await req.user.save();
+  res.json(req.user.addresses);
+});
