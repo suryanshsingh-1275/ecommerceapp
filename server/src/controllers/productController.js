@@ -72,3 +72,12 @@ export const addImages = asyncHandler(async (req, res) => {
   res.json(p);
 });
 
+export const removeImage = asyncHandler(async (req, res) => {
+  const p = await Product.findById(req.params.id);
+  if (!p) throw httpError(404, 'Product not found');
+  p.images = p.images.filter((u) => u !== req.body.url);
+  await p.save();
+  rmFile(req.body.url);
+  res.json(p);
+});
+
