@@ -17,3 +17,9 @@ export const updateCategory = asyncHandler(async (req, res) => {
   res.json(c);
 });
 
+export const deleteCategory = asyncHandler(async (req, res) => {
+  if ((await Product.exists({ category: req.params.id })) || (await Category.exists({ parent: req.params.id })))
+    throw httpError(400, 'Category has products or subcategories');
+  await Category.findByIdAndDelete(req.params.id);
+  res.json({ message: 'Deleted' });
+});
