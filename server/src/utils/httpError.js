@@ -1,0 +1,5 @@
+export default function httpError(status, message) {
+  const e = new Error(message);
+  e.status = status;
+  return e;
+}
