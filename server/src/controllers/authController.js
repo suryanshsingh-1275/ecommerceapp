@@ -18,3 +18,13 @@ export const register = asyncHandler(async (req, res) => {
   res.status(201).json({ token: sign(user._id), user: safe(user) });
 });
 
+export const login = asyncHandler(async (req, res) => {
+  const { email, password } = req.body;
+  const user = await User.findOne({ email: (email || '').toLowerCase() }).select('+password');
+  if (!user || !(await user.matchPassword(password || ''))) throw httpError(401, 'Invalid email or password');
+  if (user.isBlocked) throw httpError(403, 'Account is blocked');
+  res.json({ token: sign(user._id), user: safe(user) });
+});
+
+export const me = (req, res) => res.json({ user: safe(req.user) });
+
