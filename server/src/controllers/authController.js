@@ -28,3 +28,30 @@ export const login = asyncHandler(async (req, res) => {
 
 export const me = (req, res) => res.json({ user: safe(req.user) });
 
+export const forgotPassword = asyncHandler(async (req, res) => {
+  const user = await User.findOne({ email: (req.body.email || '').toLowerCase() });
+  if (user) {
+    const token = crypto.randomBytes(32).toString('hex');
+    user.resetToken = hash(token);
+    user.resetExpires = Date.now() + 15 * 60 * 1000;
+    await user.save();
+    const link = `${process.env.CLIENT_URL}/reset-password/${token}`;
+    await sendEmail({ to: user.email, subject: 'Password reset', text: `Reset your password (valid 15 min): ${link}` });
+  }
+  res.json({ message: 'If that email exists, a reset link has been sent' });
+});
+
+export const resetPassword = asyncHandler(async (req, res) => {
+  const { password } = req.body;
+  if (!password || password.length < 6) throw httpError(400, 'Password must be at least 6 characters');
+  const user = await User.findOne({
+    resetToken: hash(req.params.token),
+    resetExpires: { $gt: Date.now() },
+  }).select('+resetToken +resetExpires');
+  if (!user) throw httpError(400, 'Reset link is invalid or expired');
+  user.password = password;
+  user.resetToken = undefined;
+  user.resetExpires = undefined;
+  await user.save();
+  res.json({ message: 'Password updated. You can log in now.' });
+});
