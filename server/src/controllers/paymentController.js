@@ -6,6 +6,7 @@ import { asyncHandler } from '../middleware/error.js';
 import httpError from '../utils/httpError.js';
 
 const live = () => process.env.RAZORPAY_KEY_ID && process.env.RAZORPAY_KEY_SECRET;
+const mockAllowed = () => process.env.NODE_ENV !== 'production' || process.env.ALLOW_MOCK_PAYMENTS === 'true';
 
 export const createPayment = asyncHandler(async (req, res) => {
   const order = await Order.findOne({ _id: req.params.orderId, user: req.user._id });
@@ -21,6 +22,7 @@ export const createPayment = asyncHandler(async (req, res) => {
     gatewayOrderId = g.id;
     keyId = process.env.RAZORPAY_KEY_ID;
   } else {
+    if (!mockAllowed()) throw httpError(503, 'Online payments are not configured');
     gatewayOrderId = 'mock_' + Date.now();
     keyId = 'mock';
   }
@@ -41,7 +43,7 @@ export const verifyPayment = asyncHandler(async (req, res) => {
     const a = Buffer.from(expected), b = Buffer.from(razorpay_signature || '');
     ok = a.length === b.length && crypto.timingSafeEqual(a, b);
   } else {
-    ok = razorpay_order_id.startsWith('mock_');
+    ok = mockAllowed() && razorpay_order_id.startsWith('mock_');
   }
   if (!ok) {
     payment.status = 'failed';
