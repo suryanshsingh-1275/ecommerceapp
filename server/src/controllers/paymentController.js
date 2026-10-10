@@ -28,3 +28,36 @@ export const createPayment = asyncHandler(async (req, res) => {
   res.json({ keyId, gatewayOrderId, amount, currency: 'INR' });
 });
 
+export const verifyPayment = asyncHandler(async (req, res) => {
+  const { razorpay_order_id, razorpay_payment_id, razorpay_signature } = req.body;
+  const payment = await Payment.findOne({ gatewayOrderId: razorpay_order_id, user: req.user._id });
+  if (!payment) throw httpError(404, 'Payment record not found');
+  if (payment.status === 'paid') return res.json({ message: 'Already verified' });
+
+  let ok;
+  if (live()) {
+    const expected = crypto.createHmac('sha256', process.env.RAZORPAY_KEY_SECRET)
+      .update(`${razorpay_order_id}|${razorpay_payment_id}`).digest('hex');
+    const a = Buffer.from(expected), b = Buffer.from(razorpay_signature || '');
+    ok = a.length === b.length && crypto.timingSafeEqual(a, b);
+  } else {
+    ok = razorpay_order_id.startsWith('mock_');
+  }
+  if (!ok) {
+    payment.status = 'failed';
+    await payment.save();
+    throw httpError(400, 'Payment verification failed');
+  }
+  payment.status = 'paid';
+  payment.gatewayPaymentId = razorpay_payment_id || 'mock_pay_' + Date.now();
+  payment.signature = razorpay_signature;
+  await payment.save();
+
+  const order = await Order.findById(payment.order);
+  order.paymentStatus = 'Paid';
+  order.paidAt = new Date();
+  if (order.status === 'Pending') { order.status = 'Confirmed'; order.statusHistory.push({ status: 'Confirmed' }); }
+  await order.save();
+  res.json({ message: 'Payment verified', order });
+});
+
