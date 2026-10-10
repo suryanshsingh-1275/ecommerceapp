@@ -57,3 +57,44 @@ export const placeOrder = asyncHandler(async (req, res) => {
   res.status(201).json(order);
 });
 
+export const myOrders = asyncHandler(async (req, res) =>
+  res.json(await Order.find({ user: req.user._id }).sort('-createdAt')));
+
+export const allOrders = asyncHandler(async (req, res) => {
+  const { status, page = 1, limit = 20 } = req.query;
+  const filter = status ? { status } : {};
+  const [orders, total] = await Promise.all([
+    Order.find(filter).populate('user', 'name email').sort('-createdAt').skip((page - 1) * limit).limit(Number(limit)),
+    Order.countDocuments(filter),
+  ]);
+  res.json({ orders, total, pages: Math.ceil(total / limit) });
+});
+
+export const getOrder = asyncHandler(async (req, res) => {
+  const o = await Order.findById(req.params.id).populate('user', 'name email');
+  if (!o) throw httpError(404, 'Order not found');
+  if (req.user.role !== 'admin' && String(o.user._id) !== String(req.user._id)) throw httpError(403, 'Forbidden');
+  res.json(o);
+});
+
+export const cancelMyOrder = asyncHandler(async (req, res) => {
+  const o = await Order.findOne({ _id: req.params.id, user: req.user._id });
+  if (!o) throw httpError(404, 'Order not found');
+  if (!['Pending', 'Confirmed'].includes(o.status)) throw httpError(400, `Cannot cancel an order that is ${o.status}`);
+  await cancelOrder(o);
+  res.json(o);
+});
+
+export const updateOrderStatus = asyncHandler(async (req, res) => {
+  const { status } = req.body;
+  if (!['Pending', 'Confirmed', 'Shipped', 'Delivered', 'Cancelled'].includes(status)) throw httpError(400, 'Invalid status');
+  const o = await Order.findById(req.params.id);
+  if (!o) throw httpError(404, 'Order not found');
+  if (['Delivered', 'Cancelled'].includes(o.status)) throw httpError(400, `Order already ${o.status}`);
+  if (status === 'Cancelled') { await cancelOrder(o); return res.json(o); }
+  o.status = status;
+  if (status === 'Delivered' && o.paymentMethod === 'COD') { o.paymentStatus = 'Paid'; o.paidAt = new Date(); }
+  o.statusHistory.push({ status });
+  await o.save();
+  res.json(o);
+});
