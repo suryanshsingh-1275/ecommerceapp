@@ -1,3 +1,6 @@
+import dns from 'node:dns';
+dns.setServers(['8.8.8.8', '1.1.1.1']); // fixes querySrv ECONNREFUSED on some networks
+
 import 'dotenv/config';
 import mongoose from 'mongoose';
 import User from './models/User.js';
@@ -10,7 +13,8 @@ await mongoose.connect(process.env.MONGO_URI);
 if (!(await User.findOne({ email: 'admin@shop.com' })))
   await User.create({ name: 'Admin', email: 'admin@shop.com', password: 'Admin@123', role: 'admin' });
 
-if (!(await Category.countDocuments())) {
+if (!(await Product.countDocuments())) {
+  await Category.deleteMany({});
   const elec = await Category.create({ name: 'Electronics' });
   const fash = await Category.create({ name: 'Fashion' });
   const phones = await Category.create({ name: 'Phones', parent: elec._id });
