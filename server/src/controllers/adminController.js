@@ -35,3 +35,13 @@ export const getStats = asyncHandler(async (req, res) => {
   });
 });
 
+
+export const getCustomers = asyncHandler(async (req, res) => {
+  const [users, agg] = await Promise.all([
+    User.find({ role: 'customer' }).sort('-createdAt').lean(),
+    Order.aggregate([{ $match: { status: { $ne: 'Cancelled' } } }, { $group: { _id: '$user', orders: { $sum: 1 }, spent: { $sum: '$totalPrice' } } }]),
+  ]);
+  const m = Object.fromEntries(agg.map((a) => [String(a._id), a]));
+  res.json(users.map((u) => ({ ...u, orders: m[String(u._id)]?.orders || 0, spent: m[String(u._id)]?.spent || 0 })));
+});
+
