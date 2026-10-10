@@ -10,6 +10,8 @@ import Coupon from './models/Coupon.js';
 
 await mongoose.connect(process.env.MONGO_URI);
 
+const img = (seed) => `https://picsum.photos/seed/${seed}/600/600`;
+
 if (!(await User.findOne({ email: 'admin@shop.com' })))
   await User.create({ name: 'Admin', email: 'admin@shop.com', password: 'Admin@123', role: 'admin' });
 
@@ -27,6 +29,18 @@ if (!(await Product.countDocuments())) {
     { name: 'Classic Denim Jacket', brand: 'Urban', price: 1999, stock: 18, category: fash._id, description: 'Regular fit, 100% cotton.' },
   ]);
 }
+
+// Add images to seeded products that have none yet (safe to re-run)
+const images = {
+  'Nova X Smartphone': [img('nova-x-1'), img('nova-x-2')],
+  'Wireless Earbuds Pro': [img('earbuds-1'), img('earbuds-2')],
+  'Smart Watch S2': [img('watch-1'), img('watch-2')],
+  'Runner Sneakers': [img('sneakers-1'), img('sneakers-2')],
+  'Classic Denim Jacket': [img('jacket-1'), img('jacket-2')],
+};
+for (const [name, imgs] of Object.entries(images))
+  await Product.updateOne({ name, images: { $size: 0 } }, { $set: { images: imgs } });
+
 await Coupon.updateOne({ code: 'WELCOME10' }, { code: 'WELCOME10', type: 'percent', value: 10, maxDiscount: 500, minOrder: 500 }, { upsert: true });
 
 console.log('Seeded. Admin: admin@shop.com / Admin@123  |  Coupon: WELCOME10');
