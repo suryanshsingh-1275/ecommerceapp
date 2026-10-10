@@ -24,3 +24,19 @@ export const addToCart = asyncHandler(async (req, res) => {
   await cart.save();
   res.json(await load(req.user._id));
 });
+
+
+export const updateCartItem = asyncHandler(async (req, res) => {
+  const qty = Number(req.body.qty);
+  const p = await Product.findById(req.params.productId);
+  if (!p) throw httpError(404, 'Product not found');
+  if (qty < 1) throw httpError(400, 'Quantity must be at least 1');
+  if (qty > p.stock) throw httpError(400, `Only ${p.stock} in stock`);
+  await Cart.updateOne({ user: req.user._id, 'items.product': req.params.productId }, { $set: { 'items.$.qty': qty } });
+  res.json(await load(req.user._id));
+});
+
+export const removeCartItem = asyncHandler(async (req, res) => {
+  await Cart.updateOne({ user: req.user._id }, { $pull: { items: { product: req.params.productId } } });
+  res.json(await load(req.user._id));
+});
