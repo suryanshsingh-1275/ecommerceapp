@@ -45,3 +45,10 @@ export const getCustomers = asyncHandler(async (req, res) => {
   res.json(users.map((u) => ({ ...u, orders: m[String(u._id)]?.orders || 0, spent: m[String(u._id)]?.spent || 0 })));
 });
 
+export const toggleBlock = asyncHandler(async (req, res) => {
+  const u = await User.findOne({ _id: req.params.id, role: 'customer' });
+  if (!u) throw httpError(404, 'Customer not found');
+  u.isBlocked = !u.isBlocked;
+  await u.save();
+  res.json({ isBlocked: u.isBlocked });
+});
