@@ -61,3 +61,8 @@ export const verifyPayment = asyncHandler(async (req, res) => {
   res.json({ message: 'Payment verified', order });
 });
 
+export const paymentHistory = asyncHandler(async (req, res) =>
+  res.json(await Payment.find({ user: req.user._id }).populate('order', 'totalPrice status').sort('-createdAt')));
+
+export const allPayments = asyncHandler(async (req, res) =>
+  res.json(await Payment.find().populate('user', 'name email').populate('order', 'totalPrice status').sort('-createdAt').limit(200)));
