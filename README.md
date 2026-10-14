@@ -121,3 +121,8 @@ MAIL_FROM=shop@example.com
 
 It is safe to run more than once.
 
+## Payments
+
+- **Real payments:** set `RAZORPAY_KEY_ID` and `RAZORPAY_KEY_SECRET`. Signatures are verified with HMAC SHA256.
+- **Demo mode:** leave the keys blank. Online payments are simulated and marked as paid. In production this is disabled unless `ALLOW_MOCK_PAYMENTS=true` is set.
+
