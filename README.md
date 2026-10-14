@@ -25,3 +25,14 @@ A full-stack e-commerce platform where customers can browse products, manage a c
 - Coupon management
 - Role-based access control
 
+## Tech Stack
+
+| Layer | Technology |
+|---|---|
+| Frontend | React 18, Vite, React Router, Axios, Recharts |
+| Backend | Node.js, Express.js, REST API |
+| Database | MongoDB (Mongoose) |
+| Auth | JWT, bcrypt, role-based access control |
+| Payments | Razorpay (with a mock mode for demos) |
+| DevOps | Docker, Docker Compose, Git/GitHub, Render |
+
