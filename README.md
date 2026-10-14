@@ -155,3 +155,41 @@ $env:MONGO_URI="<atlas-uri>"; npm run seed
 
 > Render's filesystem is ephemeral, so images uploaded through the admin panel are lost on redeploy. Use a persistent disk or cloud storage for permanent uploads.
 
+## 🐳 Run with Docker
+
+```bash
+docker compose up --build
+docker compose exec server node src/seed.js
+```
+Open **http://localhost:3000**.
+
+## 📡 API Overview
+
+| Area | Endpoints |
+|---|---|
+| Auth | `POST /api/auth/register`, `/login`, `/forgot-password`, `/reset-password/:token`, `GET /me` |
+| Users | `PUT /api/users/profile`, `/password`, `POST /addresses`, `DELETE /addresses/:id` |
+| Products | `GET /api/products`, `GET /:id`, `POST/PUT/DELETE` (admin), `/:id/images`, `/:id/reviews` |
+| Categories | `GET /api/categories`, `POST/PUT/DELETE` (admin) |
+| Cart / Wishlist | `GET/POST/PUT/DELETE /api/cart`, `GET /api/wishlist`, `POST /api/wishlist/:productId` |
+| Coupons | `POST /api/coupons/validate`, admin CRUD |
+| Orders | `POST /api/orders`, `GET /mine`, `GET /:id`, `PUT /:id/cancel`, `PUT /:id/status` (admin) |
+| Payments | `POST /api/payments/create/:orderId`, `POST /verify`, `GET /history` |
+| Admin | `GET /api/admin/stats`, `/customers`, `PUT /customers/:id/block` |
+
+## 🔒 Security
+
+- Passwords hashed with bcrypt, JWT with expiry
+- Role is never accepted from client input
+- Helmet, rate limiting on auth routes, CORS
+- Server-side price, stock and coupon calculation
+- Atomic stock reservation with rollback on failed orders
+- Payment signature verification
+
+## 📸 Screenshots
+
+_Add screenshots of the shop, product page, checkout and admin dashboard here._
+
+## 👤 Author
+
+**Suryansh** · GitHub: [@suryanshsingh-1275](https://github.com/suryanshsingh-1275)
