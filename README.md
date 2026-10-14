@@ -92,3 +92,23 @@ Open **http://localhost:5173**.
 
 > The port in `client/vite.config.js` (dev proxy) must match `PORT` in `server/.env`.
 
+## Environment Variables (`server/.env`)
+
+```env
+PORT=5000
+MONGO_URI=mongodb://127.0.0.1:27017/ecommerce
+JWT_SECRET=change_this_to_a_long_random_string
+CLIENT_URL=http://localhost:5173
+
+# Leave blank to use mock payments in development
+RAZORPAY_KEY_ID=
+RAZORPAY_KEY_SECRET=
+
+# Leave blank to print password-reset links in the server console
+SMTP_HOST=
+SMTP_PORT=587
+SMTP_USER=
+SMTP_PASS=
+MAIL_FROM=shop@example.com
+```
+
