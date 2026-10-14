@@ -10,4 +10,21 @@ services:
       timeout: 5s
       retries: 5
 
+  server:
+    build: ./server
+    restart: unless-stopped
+    env_file: ./server/.env
+    environment:
+      PORT: 5000
+      MONGO_URI: mongodb://mongo:27017/ecommerce
+      CLIENT_URL: http://localhost:3000
+      ALLOW_MOCK_PAYMENTS: "true"
+    volumes:
+      - uploads:/app/uploads
+    depends_on:
+      mongo:
+        condition: service_healthy
+    ports:
+      - "5000:5000"
+
   
