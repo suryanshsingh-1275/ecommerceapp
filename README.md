@@ -112,3 +112,12 @@ SMTP_PASS=
 MAIL_FROM=shop@example.com
 ```
 
+## Seed Data
+
+`npm run seed` (inside `server/`) creates:
+- Admin user: `admin@shop.com` / `Admin@123`
+- Sample categories and products
+- Coupon: `WELCOME10` (10% off, max ₹500, min order ₹500)
+
+It is safe to run more than once.
+
