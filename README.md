@@ -62,3 +62,33 @@ e-commerce-website/
         └── routes/          # API routes
 ```
 
+## Run Locally
+
+**Prerequisites:** Node.js 18+, and MongoDB running locally or a MongoDB Atlas connection string.
+
+**1. Clone**
+```bash
+git clone https://github.com/suryanshsingh-1275/ecommerceapp.git
+cd ecommerceapp
+```
+
+**2. Backend**
+```bash
+cd server
+cp .env.example .env      # on Windows: copy .env.example .env
+npm install
+npm run seed
+npm run dev
+```
+
+**3. Frontend** (new terminal)
+```bash
+cd client
+npm install
+npm run dev
+```
+
+Open **http://localhost:5173**.
+
+> The port in `client/vite.config.js` (dev proxy) must match `PORT` in `server/.env`.
+
