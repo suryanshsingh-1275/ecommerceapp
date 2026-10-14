@@ -16,3 +16,12 @@ A full-stack e-commerce platform where customers can browse products, manage a c
 - Coupon codes, checkout, COD or online payment (Razorpay)
 - Order history, order cancellation, order tracking timeline, transaction history
 
+**Admin**
+- Dashboard with KPIs and charts (sales trend, orders by status, top products)
+- Product CRUD with multi-image upload
+- Inventory management and low-stock alerts
+- Order management with status updates
+- Customer management (block/unblock)
+- Coupon management
+- Role-based access control
+
