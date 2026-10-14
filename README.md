@@ -126,3 +126,32 @@ It is safe to run more than once.
 - **Real payments:** set `RAZORPAY_KEY_ID` and `RAZORPAY_KEY_SECRET`. Signatures are verified with HMAC SHA256.
 - **Demo mode:** leave the keys blank. Online payments are simulated and marked as paid. In production this is disabled unless `ALLOW_MOCK_PAYMENTS=true` is set.
 
+## Deploy on Render (single Web Service)
+
+Express serves the React build, so frontend and backend run as one service.
+
+| Setting | Value |
+|---|---|
+| Root Directory | _(blank)_ |
+| Build Command | `npm install --include=dev --prefix client && npm run build --prefix client && npm install --prefix server` |
+| Start Command | `cd server && npm start` |
+
+**Environment variables on Render**
+
+```
+NODE_ENV=production
+NODE_VERSION=20
+MONGO_URI=<MongoDB Atlas connection string, ending in /ecommerce>
+JWT_SECRET=<long random string>
+CLIENT_URL=https://<your-service>.onrender.com
+ALLOW_MOCK_PAYMENTS=true      # only for demos without Razorpay keys
+```
+
+Seed the Atlas database once from your machine:
+```bash
+# PowerShell
+$env:MONGO_URI="<atlas-uri>"; npm run seed
+```
+
+> Render's filesystem is ephemeral, so images uploaded through the admin panel are lost on redeploy. Use a persistent disk or cloud storage for permanent uploads.
+
