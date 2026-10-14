@@ -35,3 +35,6 @@ services:
     ports:
       - "3000:80"
 
+volumes:
+  mongo_data:
+  uploads:
