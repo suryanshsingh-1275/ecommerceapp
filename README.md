@@ -36,3 +36,29 @@ A full-stack e-commerce platform where customers can browse products, manage a c
 | Payments | Razorpay (with a mock mode for demos) |
 | DevOps | Docker, Docker Compose, Git/GitHub, Render |
 
+## Project Structure
+
+```
+e-commerce-website/
+├── docker-compose.yml
+├── client/                  # React (Vite) frontend
+│   ├── Dockerfile
+│   ├── nginx.conf
+│   ├── public/products/     # seed product images
+│   └── src/
+│       ├── api.js, utils.js, main.jsx, App.jsx, index.css
+│       ├── context/         # AuthContext, CartContext
+│       ├── components/      # Navbar, ProtectedRoute, ProductCard
+│       └── pages/           # shop, cart, checkout, orders, auth, admin/*
+└── server/                  # Express backend
+    ├── Dockerfile
+    └── src/
+        ├── server.js, app.js, seed.js
+        ├── config/          # db connection
+        ├── middleware/      # auth, error handling, upload
+        ├── utils/           # pricing, email, errors
+        ├── models/          # User, Product, Category, Cart, Order, Payment...
+        ├── controllers/     # business logic
+        └── routes/          # API routes
+```
+
